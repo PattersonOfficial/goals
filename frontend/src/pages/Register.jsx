@@ -1,15 +1,40 @@
 import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { register, reset } from '../features/auth/authSlice';
 import { FaUser } from 'react-icons/fa';
+import Spinner from '../components/Spinner';
 
 function Register() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     password: '',
     confirm_password: '',
   });
 
-  const { name, email, password, confirm_password } = formData;
+  const { name, email, phone, password, confirm_password } = formData;
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { user, isLoading, isSuccess, isError, message } = useSelector(
+    (state) => state.auth
+  );
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(message);
+    }
+
+    if (isSuccess || user) {
+      navigate('/');
+    }
+
+    dispatch(reset());
+  }, [user, isSuccess, isError, message, dispatch, navigate]);
 
   const onChange = (e) => {
     setFormData((prevState) => ({
@@ -20,7 +45,25 @@ function Register() {
 
   const onSubmit = (e) => {
     e.preventDefault();
+
+    if (password !== confirm_password) {
+      toast.error('Passwords do not match');
+    } else {
+      const userData = {
+        name,
+        email,
+        phone,
+        password,
+      };
+
+      // sending data back to auth slice
+      dispatch(register(userData));
+    }
   };
+
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   return (
     <>
@@ -54,6 +97,18 @@ function Register() {
               value={email}
               onChange={onChange}
               placeholder='Enter your email'
+            />
+          </div>
+
+          <div className='form-group'>
+            <input
+              type='tel'
+              className='form-control'
+              id='phone'
+              name='phone'
+              value={phone}
+              onChange={onChange}
+              placeholder='Enter your phone'
             />
           </div>
 
