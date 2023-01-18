@@ -34,7 +34,7 @@ const registerUser = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       phone: user.phone,
-      token: generateToken(user._id)
+      token: generateToken(user._id),
     });
   } else {
     res.status(400);
@@ -56,7 +56,7 @@ const loginUser = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       phone: user.phone,
-      token: generateToken(user._id)
+      token: generateToken(user._id),
     });
   } else {
     res.status(400);
@@ -68,16 +68,15 @@ const loginUser = asyncHandler(async (req, res) => {
 // @route   GET /api/users/logged-user
 // @access  Public
 const getLoggedUser = asyncHandler(async (req, res) => {
-  res.json({ message: 'Logged User Data', user: req.user });
+  res.status(200).json(req.user);
 });
-
 
 // generate JWT token
 const generateToken = (id) => {
-  return jwt.sign({id}, process.env.JWT_SECRET, {
-    expiresIn: '30d'
-  }) 
-}
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: '30d',
+  });
+};
 
 module.exports = {
   registerUser,
